@@ -12,7 +12,7 @@ main = hakyllWith (defaultConfiguration {providerDirectory = "site"}) $ do
     route idRoute
     compile compressCssCompiler
 
-  match (Hakyll.fromList ["about.rst", "contact.markdown"]) $ do
+  match (Hakyll.fromList ["about.md", "contact.md"]) $ do
     route $ setExtension "html"
     compile $
       pandocCompiler
