@@ -24,6 +24,7 @@ main = hakyllWith (defaultConfiguration {providerDirectory = "site"}) $ do
     compile $
       pandocCompiler
         >>= loadAndApplyTemplate "templates/post.html" postCtx
+        >>= saveSnapshot "content"
         >>= loadAndApplyTemplate "templates/default.html" postCtx
         >>= relativizeUrls
 
@@ -56,7 +57,38 @@ main = hakyllWith (defaultConfiguration {providerDirectory = "site"}) $ do
 
   match "templates/*" $ compile templateBodyCompiler
 
+  create ["atom.xml"] $ do
+    route idRoute
+    compile $ feedCompiler renderAtom
+
+  create ["rss.xml"] $ do
+    route idRoute
+    compile $ feedCompiler renderRss
+
 postCtx :: Context String
-postCtx =
-  dateField "date" "%B %e, %Y"
-    `mappend` defaultContext
+postCtx = dateField "date" "%B %e, %Y" <> defaultContext
+
+feedCtx :: Context String
+feedCtx = postCtx <> bodyField "description"
+
+feedConfiguration :: FeedConfiguration
+feedConfiguration =
+  FeedConfiguration
+    { feedTitle = "To Do App",
+      feedDescription = "An overengineered to do app",
+      feedAuthorName = "Stijn Ruts",
+      feedAuthorEmail = "stijn@example.com",
+      feedRoot = "http://todo.example.com"
+    }
+
+type FeedRenderer =
+  FeedConfiguration ->
+  Context String ->
+  [Item String] ->
+  Compiler (Item String)
+
+feedCompiler :: FeedRenderer -> Compiler (Item String)
+feedCompiler renderer =
+  renderer feedConfiguration feedCtx
+    =<< fmap (take 10) . recentFirst
+    =<< loadAllSnapshots "posts/*" "content"
