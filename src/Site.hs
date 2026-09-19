@@ -1,6 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Hakyll
+import Page (pageHtml)
+import Text.Blaze.Html.Renderer.String (renderHtml)
+import Text.Blaze.Html5 (Html)
 
 main :: IO ()
 main = hakyllWith (defaultConfiguration {providerDirectory = "site"}) $ do
@@ -11,6 +14,10 @@ main = hakyllWith (defaultConfiguration {providerDirectory = "site"}) $ do
   match "css/*" $ do
     route idRoute
     compile compressCssCompiler
+
+  create ["page.html"] $ do
+    route idRoute
+    compile $ htmlCompiler pageHtml
 
   match (Hakyll.fromList ["about.md", "contact.md"]) $ do
     route $ setExtension "html"
@@ -92,3 +99,6 @@ feedCompiler renderer =
   renderer feedConfiguration feedCtx
     =<< fmap (take 10) . recentFirst
     =<< loadAllSnapshots "posts/*" "content"
+
+htmlCompiler :: Html -> Compiler (Item String)
+htmlCompiler = makeItem . renderHtml

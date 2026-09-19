@@ -8,7 +8,7 @@ As such, it is deliberately engineered on a larger scale than a basic todo app r
 The intent is that you can replace the todo functionality with your own custom app while keeping the underlying structure.
 
 - The application follows a [Jamstack](https://jamstack.org) architecture.
-- The site is generated with [Hakyll](https://jaspervdj.be/hakyll).
+- The site is generated with [Hakyll](https://jaspervdj.be/hakyll), using [Blaze](https://jaspervdj.be/blaze) for HTML.
 - The backend is written in [Haskell](https://www.haskell.org) with [relude](https://hackage.haskell.org/package/relude).
 - The system configuration is [Dendritic](https://github.com/mightyiam/dendritic) [Nix](https://nixos.org) with [flake-file](https://flake-file.denful.dev).
 - The build system is [Shake](https://shakebuild.com).
