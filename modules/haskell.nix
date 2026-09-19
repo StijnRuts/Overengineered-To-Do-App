@@ -5,7 +5,10 @@
         version = "9.10.3";
 
         tools = [
-          (pkgs.haskell.packages."ghc${lib.replaceString "." "" version}".ghcWithPackages (p: [ p.zlib ]))
+          (pkgs.haskell.packages."ghc${lib.replaceString "." "" version}".ghcWithPackages (p: [
+            p.shake
+            p.zlib
+          ]))
           pkgs.cabal-install
           pkgs.ghcid
         ];
