@@ -25,7 +25,8 @@ executable site
   main-is: Site.hs
   build-depends:
     blaze-html,
-    hakyll,
+    directory,
+    filepath,
 
   ghc-options:
     -threaded

@@ -40,7 +40,8 @@ main = shakeArgs shakeOptions {shakeFiles = "_build"} $ do
   -- Site
 
   phony "site:build" $ do
-    cmd_ "cabal run exe:site build"
+    cmd_ "cabal run exe:site"
 
   phony "site:clean" $ do
-    cmd_ "cabal run exe:site clean"
+    removeFilesAfter "_site" ["//*"]
+    removeFilesAfter "_cache" ["//*"]

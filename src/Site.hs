@@ -1,104 +1,58 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Hakyll
-import Page (pageHtml)
-import Text.Blaze.Html.Renderer.String (renderHtml)
-import Text.Blaze.Html5 (Html)
+import qualified Data.ByteString.Lazy as LBS
+import System.Directory
+  ( createDirectoryIfMissing,
+  )
+import System.FilePath ((</>))
+import Text.Blaze.Html.Renderer.Utf8 (renderHtml)
+import Text.Blaze.Html5 (Html, (!))
+import qualified Text.Blaze.Html5 as H
+import qualified Text.Blaze.Html5.Attributes as A
+
+data FsEntry
+  = File FilePath LBS.ByteString
+  | Directory FilePath [FsEntry]
+
+layout :: Html -> Html
+layout content = H.docTypeHtml $ H.body content
+
+homePage :: Html
+homePage =
+  layout $ do
+    H.h1 "Welcome"
+    H.p "This page was generated statically."
+    H.p $ do
+      "Read more on the "
+      H.a ! A.href "/about.html" $ "about page"
+
+aboutPage :: Html
+aboutPage =
+  layout $ do
+    H.h1 "About"
+    H.p "This is a small static site built with Blaze HTML."
+
+site :: [FsEntry]
+site =
+  [ File "home.html" (renderHtml homePage),
+    File "about.html" (renderHtml aboutPage)
+  ]
+
+writeFsEntry :: FsEntry -> IO ()
+writeFsEntry = writeFsEntryAt ""
+  where
+    writeFsEntryAt parent (File fileName content) = do
+      let path = parent </> fileName
+      putStrLn ("Writing " <> path)
+      writeFileLBS path content
+    writeFsEntryAt parent (Directory directoryName entries) = do
+      let path = parent </> directoryName
+      putStrLn ("Writing " <> path <> "/")
+      createDirectoryIfMissing True path
+      mapM_ (writeFsEntryAt path) entries
 
 main :: IO ()
-main = hakyllWith (defaultConfiguration {providerDirectory = "site"}) $ do
-  match "images/*" $ do
-    route idRoute
-    compile copyFileCompiler
-
-  match "css/*" $ do
-    route idRoute
-    compile compressCssCompiler
-
-  create ["page.html"] $ do
-    route idRoute
-    compile $ htmlCompiler pageHtml
-
-  match (Hakyll.fromList ["about.md", "contact.md"]) $ do
-    route $ setExtension "html"
-    compile $
-      pandocCompiler
-        >>= loadAndApplyTemplate "templates/default.html" defaultContext
-        >>= relativizeUrls
-
-  match "posts/*" $ do
-    route $ setExtension "html"
-    compile $
-      pandocCompiler
-        >>= loadAndApplyTemplate "templates/post.html" postCtx
-        >>= saveSnapshot "content"
-        >>= loadAndApplyTemplate "templates/default.html" postCtx
-        >>= relativizeUrls
-
-  create ["archive.html"] $ do
-    route idRoute
-    compile $ do
-      posts <- recentFirst =<< loadAll "posts/*"
-      let archiveCtx =
-            listField "posts" postCtx (return posts)
-              `mappend` constField "title" "Archives"
-              `mappend` defaultContext
-
-      makeItem ""
-        >>= loadAndApplyTemplate "templates/archive.html" archiveCtx
-        >>= loadAndApplyTemplate "templates/default.html" archiveCtx
-        >>= relativizeUrls
-
-  match "index.html" $ do
-    route idRoute
-    compile $ do
-      posts <- recentFirst =<< loadAll "posts/*"
-      let indexCtx =
-            listField "posts" postCtx (return posts)
-              `mappend` defaultContext
-
-      getResourceBody
-        >>= applyAsTemplate indexCtx
-        >>= loadAndApplyTemplate "templates/default.html" indexCtx
-        >>= relativizeUrls
-
-  match "templates/*" $ compile templateBodyCompiler
-
-  create ["atom.xml"] $ do
-    route idRoute
-    compile $ feedCompiler renderAtom
-
-  create ["rss.xml"] $ do
-    route idRoute
-    compile $ feedCompiler renderRss
-
-postCtx :: Context String
-postCtx = dateField "date" "%B %e, %Y" <> defaultContext
-
-feedCtx :: Context String
-feedCtx = postCtx <> bodyField "description"
-
-feedConfiguration :: FeedConfiguration
-feedConfiguration =
-  FeedConfiguration
-    { feedTitle = "To Do App",
-      feedDescription = "An overengineered to do app",
-      feedAuthorName = "Stijn Ruts",
-      feedAuthorEmail = "stijn@example.com",
-      feedRoot = "http://todo.example.com"
-    }
-
-type FeedRenderer =
-  FeedConfiguration ->
-  Context String ->
-  [Item String] ->
-  Compiler (Item String)
-
-feedCompiler :: FeedRenderer -> Compiler (Item String)
-feedCompiler renderer =
-  renderer feedConfiguration feedCtx
-    =<< fmap (take 10) . recentFirst
-    =<< loadAllSnapshots "posts/*" "content"
-
-htmlCompiler :: Html -> Compiler (Item String)
-htmlCompiler = makeItem . renderHtml
+main = do
+  putStrLn "Writing site..."
+  writeFsEntry $ Directory "_site" site
+  putStrLn "Done!"
