@@ -1,6 +1,6 @@
-# Overengineered To Do App
+# Overengineered Todo App
 
-This is a full stack to do application, inspired by [TodoMVC](https://todomvc.com) and [Todo-Backend](https://www.todobackend.com).
+This is a full stack todo application, inspired by [TodoMVC](https://todomvc.com) and [Todo-Backend](https://www.todobackend.com).
 I wrote it to teach myself [functional programming](https://en.wikipedia.org/wiki/Functional_programming).
 
 The todos are not really the point. The project is a place to learn how to build better software.

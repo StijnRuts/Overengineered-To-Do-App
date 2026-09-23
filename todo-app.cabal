@@ -9,24 +9,43 @@ common defaults
     base,
     relude,
 
-  hs-source-dirs: src
+  default-extensions:
+    OverloadedStrings
+
   default-language: Haskell2010
   mixins:
     base hiding (Prelude),
     relude (Relude as Prelude),
     relude,
 
-executable backend
+library
   import: defaults
-  main-is: Backend.hs
+  hs-source-dirs: src
+  exposed-modules:
+    Website
+    Website.Files
+    Website.Page
+    Website.Page.About
+    Website.Page.Contact
+    Website.Page.Home
+    Website.Site
 
-executable site
-  import: defaults
-  main-is: Site.hs
   build-depends:
     blaze-html,
     directory,
     filepath,
+
+executable backend
+  import: defaults
+  hs-source-dirs: app/backend
+  main-is: Main.hs
+
+executable website
+  import: defaults
+  hs-source-dirs: app/website
+  main-is: Main.hs
+  build-depends:
+    todo-app
 
   ghc-options:
     -threaded

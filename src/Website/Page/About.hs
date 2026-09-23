@@ -1,3 +1,16 @@
+module Website.Page.About where
+
+import qualified Text.Blaze.Html5 as H
+import Website.Page
+
+aboutPage :: PageParams
+aboutPage =
+  PageParams
+    { pageTitle = "About",
+      pageContent = H.p "This is the about page"
+    }
+
+{-
 ---
 title: About
 ---
@@ -16,3 +29,4 @@ structure.
 
 This is not a productivity platform, a collaboration suite, or an AI-powered
 synergy engine. It is a small application built carefully, one function at a time.
+-}

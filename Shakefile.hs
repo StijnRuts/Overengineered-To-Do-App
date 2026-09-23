@@ -12,7 +12,7 @@ main = shakeArgs shakeOptions {shakeFiles = "_build"} $ do
   phony "build" $ do
     need
       [ "backend:build",
-        "site:build"
+        "website:build"
       ]
 
   phony "format" $ do
@@ -21,7 +21,7 @@ main = shakeArgs shakeOptions {shakeFiles = "_build"} $ do
   phony "clean" $ do
     need
       [ "backend:clean",
-        "site:clean"
+        "website:clean"
       ]
     removeFilesAfter "_build" ["//*"]
 
@@ -37,11 +37,11 @@ main = shakeArgs shakeOptions {shakeFiles = "_build"} $ do
     removeFilesAfter "dist-newstyle" ["//*"]
     removeFilesAfter "bin" ["//*"]
 
-  -- Site
+  -- Website
 
-  phony "site:build" $ do
-    cmd_ "cabal run exe:site"
+  phony "website:build" $ do
+    cmd_ "cabal run exe:website"
 
-  phony "site:clean" $ do
-    removeFilesAfter "_site" ["//*"]
+  phony "website:clean" $ do
+    removeFilesAfter "_website" ["//*"]
     removeFilesAfter "_cache" ["//*"]
