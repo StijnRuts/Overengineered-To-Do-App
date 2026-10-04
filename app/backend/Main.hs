@@ -22,6 +22,46 @@ data Logger error warning a
 
 --------
 
+data Field a = Field
+  { defaultValue :: Set a,
+    explicitValue :: Set a
+  }
+
+instance Functor Field where
+  fmap f (Field default' explicit) =
+    Field (fmap f default') (fmap f explicit)
+
+instance Applicative Field where
+  pure value = Field None (Once value)
+  functions <*> values =
+    case (valueOf functions, valueOf values) of
+      (Just f, Just value) -> pure (f value)
+      _ -> Field None None
+
+instance Semigroup (Field a) where
+  Field oldDefaults oldExplicit <> Field newDefaults newExplicit =
+    Field (oldDefaults <> newDefaults) (oldExplicit <> newExplicit)
+
+instance Monoid (Field a) where
+  mempty = Field None None
+
+valueOf :: Field a -> Maybe a
+valueOf (Field fallbackValues None) = valueOfSet fallbackValues
+valueOf (Field _ explicit) = valueOfSet explicit
+
+isNone :: Field a -> Bool
+isNone = isNothing . valueOf
+
+isManyDefault :: Field a -> Bool
+isManyDefault (Field (Many _) _) = True
+isManyDefault _ = False
+
+isManyExplicit :: Field a -> Bool
+isManyExplicit (Field _ (Many _)) = True
+isManyExplicit _ = False
+
+--------
+
 data Set a
   = None
   | Once a
@@ -53,42 +93,41 @@ instance Semigroup (Set a) where
 instance Monoid (Set a) where
   mempty = None
 
-valueOf :: Set a -> Maybe a
-valueOf None = Nothing
-valueOf (Once value) = Just value
-valueOf (Many value) = Just value
-
-isNone :: Set a -> Bool
-isNone None = True
-isNone _ = False
-
-isMany :: Set a -> Bool
-isMany (Many _) = True
-isMany _ = False
+valueOfSet :: Set a -> Maybe a
+valueOfSet None = Nothing
+valueOfSet (Once value) = Just value
+valueOfSet (Many value) = Just value
 
 --------
 
-type Partial a = HKD a Set
+type Partial a = HKD a Field
 
 type Update a = Partial a -> Partial a
 
 type Builder a = Update a -> Logger String String a
 
-type LabelExtractor a = (forall b. Set b -> Bool) -> Partial a -> [String]
+type LabelExtractor a = (forall b. Field b -> Bool) -> Partial a -> [String]
 
-builder :: forall a. (Monoid (Partial a), Construct Set a) => LabelExtractor a -> Builder a
+builder :: forall a. (Monoid (Partial a), Construct Field a) => LabelExtractor a -> Builder a
 builder labels updates =
   let initial :: Partial a
       initial = mempty @(Partial a)
       values = updates initial
       missing = labels isNone values
-      repeated = labels isMany values
+      repeatedDefaults = labels isManyDefault values
+      repeatedExplicits = labels isManyExplicit values
+      warnings =
+        map ("Default set more than once: " <>) repeatedDefaults
+          <> map ("Field set more than once: " <>) repeatedExplicits
    in case valueOf (construct values) of
-      Just result -> Success (map ("Field set more than once: " <>) repeated) result
-      Nothing -> Failed ("Missing fields " <> intercalate ", " missing)
+        Just result -> Success warnings result
+        Nothing -> Failed ("Missing fields " <> intercalate ", " missing)
 
-set :: (Applicative f, Semigroup (f a)) => Lens' (HKD structure f) (f a) -> a -> HKD structure f -> HKD structure f
-set lens value u = u & lens %~ (<> pure value)
+set :: Lens' (HKD structure Field) (Field a) -> a -> HKD structure Field -> HKD structure Field
+set lens value u = u & lens %~ (<> Field None (Once value))
+
+setDefault :: Lens' (HKD structure Field) (Field a) -> a -> HKD structure Field -> HKD structure Field
+setDefault lens value u = u & lens %~ (<> Field (Once value) None)
 
 --------
 
@@ -104,7 +143,7 @@ mkUser :: Builder User
 mkUser updates = builder labelsWhere (updates . defaults)
 
 defaults :: Update User
-defaults = set (field @"likesDogs") True
+defaults = setDefault (field @"likesDogs") True
 
 user1 :: Logger String String User
 user1 =
@@ -132,9 +171,17 @@ user4 =
       . set (field @"name") "Lorem Ipsum"
       . set (field @"age") 42
 
+user5 :: Logger String String User
+user5 =
+  mkUser $
+    setDefault (field @"likesDogs") False
+      . set (field @"name") "Lorem Ipsum"
+      . set (field @"age") 42
+
 main :: IO ()
 main = do
   print user1
   print user2
   print user3
   print user4
+  print user5
