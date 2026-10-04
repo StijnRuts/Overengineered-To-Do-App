@@ -29,13 +29,13 @@ main = shakeArgs shakeOptions {shakeFiles = "_build"} $ do
 
   phony "backend:build" $ do
     cmd_ "cabal build exe:backend"
-    cmd_ "mkdir -p bin"
+    cmd_ "mkdir -p _bin"
     StdoutTrim (bin :: String) <- cmd "cabal list-bin exe:backend"
-    cmd_ "cp" [bin] "bin/backend"
+    cmd_ "cp" [bin] "_bin/backend"
 
   phony "backend:clean" $ do
     removeFilesAfter "dist-newstyle" ["//*"]
-    removeFilesAfter "bin" ["//*"]
+    removeFilesAfter "_bin" ["//*"]
 
   -- Website
 

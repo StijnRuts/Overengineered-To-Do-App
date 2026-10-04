@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>To Do App</title>
+    <subtitle><![CDATA[An overengineered to do app]]></subtitle>
+    <link href="http://todo.example.com/atom.xml" rel="self" />
+    <link href="http://todo.example.com" />
+    <id>http://todo.example.com/atom.xml</id>
+    <author>
+        <name>Stijn Ruts</name>
+        
+        <email>stijn@example.com</email>
+        
+    </author>
+    <updated>2026-09-04T12:00:00Z</updated>
+    <entry>
+    <title>Why Small Tasks Matter</title>
+    <link href="http://todo.example.com/posts/why-small-tasks-matter.html" />
+    <id>http://todo.example.com/posts/why-small-tasks-matter.html</id>
+    <published>2026-09-04T12:00:00Z</published>
+    <updated>2026-09-04T12:00:00Z</updated>
+    <summary type="html"><![CDATA[<article>
+    <section class="header">
+        Posted on September  4, 2026
+        
+    </section>
+    <section>
+        <p>Small tasks are the atoms of a productive day. Reply to one message. Put the
+mug in the dishwasher before it becomes a permanent piece of archaeology.</p>
+<p>A todo app gives these tasks a place to land. That matters because the brain is
+excellent at inventing concerns and less excellent at remembering which one it
+invented while you were brushing your teeth.</p>
+<p>The goal is not to fill every minute. It is to make the next useful action
+visible, then get on with life.</p>
+    </section>
+</article>
+]]></summary>
+</entry>
+<entry>
+    <title>The Empty List</title>
+    <link href="http://todo.example.com/posts/the-empty-list.html" />
+    <id>http://todo.example.com/posts/the-empty-list.html</id>
+    <published>2026-09-03T12:00:00Z</published>
+    <updated>2026-09-03T12:00:00Z</updated>
+    <summary type="html"><![CDATA[<article>
+    <section class="header">
+        Posted on September  3, 2026
+        
+    </section>
+    <section>
+        <p>There is a special calm that arrives when the last todo disappears. For a few
+seconds, the system is stable. Nothing is overdue. No task is silently judging
+you from a browser tab.</p>
+<p>Then someone remembers the groceries.</p>
+<p>This is not failure of the system. An empty list is a temporary victory condition, not a
+permanent lifestyle. The point of a todo app is to make room for the next thing
+without pretending there will never be another thing.</p>
+    </section>
+</article>
+]]></summary>
+</entry>
+<entry>
+    <title>The Emotional Lifecycle of a Todo</title>
+    <link href="http://todo.example.com/posts/the-emotional-lifecycle.html" />
+    <id>http://todo.example.com/posts/the-emotional-lifecycle.html</id>
+    <published>2026-09-02T12:00:00Z</published>
+    <updated>2026-09-02T12:00:00Z</updated>
+    <summary type="html"><![CDATA[<article>
+    <section class="header">
+        Posted on September  2, 2026
+        
+    </section>
+    <section>
+        <p>Every todo begins as a confident promise: <em>I will do this today.</em></p>
+<p>By lunch, it has become a negotiation: <em>I will do this today, unless today
+contains unexpected emails.</em> By evening, it is a historical artefact with a
+surprisingly strong claim to tomorrow.</p>
+<p>Completion is the happy ending. Deletion is also acceptable. The mature todo
+manager understands that not every task needs closure; some need the dignity
+of being quietly removed after three weeks of avoidance.</p>
+    </section>
+</article>
+]]></summary>
+</entry>
+<entry>
+    <title>The Ancient Art of the Todo List</title>
+    <link href="http://todo.example.com/posts/the-ancient-art.html" />
+    <id>http://todo.example.com/posts/the-ancient-art.html</id>
+    <published>2026-09-01T12:00:00Z</published>
+    <updated>2026-09-01T12:00:00Z</updated>
+    <summary type="html"><![CDATA[<article>
+    <section class="header">
+        Posted on September  1, 2026
+        
+    </section>
+    <section>
+        <p>The todo list is older than the smartphone, the startup, and probably even the
+standing desk. Roman generals had plans. Monks had schedules. Your ancestors
+had a scrap of papyrus reminding them to buy olives.</p>
+<p>The modern todo app is the same idea with better typography and fewer chances
+of losing the list in a sandal. Its greatest feature is not intelligence. It
+is the gentle external pressure of seeing a list of unfinished tasks stare back at you.</p>
+<p>There is something reassuring about a list that asks for no quarterly review.
+It only asks: what is the next small thing?</p>
+    </section>
+</article>
+]]></summary>
+</entry>
+
+</feed>

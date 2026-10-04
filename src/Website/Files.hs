@@ -4,7 +4,7 @@ import qualified Data.ByteString.Lazy as LBS
 import System.Directory
   ( createDirectoryIfMissing,
   )
-import System.FilePath ((</>))
+import System.FilePath (takeDirectory, (</>))
 import Text.Blaze.Html.Renderer.Utf8 (renderHtml)
 import Text.Blaze.Html5 (Html)
 
@@ -19,13 +19,18 @@ htmlPage :: FilePath -> Html -> FsEntry
 htmlPage "" html = htmlFile "index.html" html
 htmlPage path html = Directory path [htmlFile "index.html" html]
 
+writeBytes :: FilePath -> LBS.ByteString -> IO ()
+writeBytes path content = do
+  createDirectoryIfMissing True (takeDirectory path)
+  LBS.writeFile path content
+
 writeFsEntry :: FsEntry -> IO ()
 writeFsEntry = writeFsEntryAt ""
   where
     writeFsEntryAt parent (File fileName content) = do
       let path = parent </> fileName
       putStrLn ("Writing " <> path)
-      writeFileLBS path content
+      writeBytes path content
     writeFsEntryAt parent (Directory directoryName entries) = do
       let path = parent </> directoryName
       putStrLn ("Writing " <> path <> "/")

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>$root$</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <lastmod>2026-01-01</lastmod>
+  </url>
+$for(pages)$
+  <url>
+    <loc>$root$$url$</loc>
+    <lastmod>$if(updated)$$updated$$else$$if(date)$$date$$endif$$endif$</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+$endfor$
+</urlset>

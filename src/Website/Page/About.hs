@@ -3,12 +3,9 @@ module Website.Page.About where
 import qualified Text.Blaze.Html5 as H
 import Website.Page
 
-aboutPage :: PageParams
+aboutPage :: Page
 aboutPage =
-  PageParams
-    { pageTitle = "About",
-      pageContent = H.p "This is the about page"
-    }
+  page "about" "About" (H.p "This is the about page")
 
 {-
 ---

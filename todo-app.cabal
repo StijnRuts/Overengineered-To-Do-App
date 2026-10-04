@@ -41,7 +41,7 @@ executable backend
   main-is: Main.hs
   build-depends:
     higgledy,
-    lens
+    lens,
 
 executable website
   import: defaults
