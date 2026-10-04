@@ -1,11 +1,20 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeApplications #-}
+
 module Website.Page.About where
 
+import Data.Generic.HKD (field)
+import SSG.Builder (set)
+import SSG.Result (Result')
 import qualified Text.Blaze.Html5 as H
 import Website.Page
 
-aboutPage :: Page
+aboutPage :: Result' Page
 aboutPage =
-  page "about" "About" (H.p "This is the about page")
+  new $
+    set (field @"title") "About"
+      . set (field @"url") "/about"
+      . set (field @"content") (H.p "This is the about page")
 
 {-
 ---

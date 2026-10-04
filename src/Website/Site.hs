@@ -1,15 +1,15 @@
 module Website.Site where
 
-data SiteParams = SiteParams
-  { siteTitle :: String,
-    siteDescription :: String,
-    siteKeywords :: String
+data Site = Site
+  { title :: String -> String,
+    description :: String,
+    keywords :: [String]
   }
 
-siteParams :: SiteParams
-siteParams =
-  SiteParams
-    { siteTitle = "Todo",
-      siteDescription = "An Overengineered Todo App",
-      siteKeywords = "todo list"
+site :: Site
+site =
+  Site
+    { title = (<> " | Todo"),
+      description = "An Overengineered Todo App",
+      keywords = ["todo", "list"]
     }

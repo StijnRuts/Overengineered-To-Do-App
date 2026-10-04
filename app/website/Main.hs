@@ -2,11 +2,21 @@
 
 module Main (main) where
 
-import Website (pages)
-import Website.Files (FsEntry (Directory), writeFsEntry)
+import SSG.Files (writeFiles)
+import SSG.Result (Result (..))
+import Website (files)
 
 main :: IO ()
 main = do
   putStrLn "Writing site..."
-  writeFsEntry $ Directory "_website" pages
-  putStrLn "Done!"
+  case files of
+    Failed errors warnings -> do
+      mapM_ (putStrLn . ("Error: " <>)) errors
+      mapM_ (putStrLn . ("Warning: " <>)) warnings
+      exitFailure
+    Success warnings outputFiles -> do
+      mapM_ (putStrLn . ("Warning: " <>)) warnings
+      writeFiles "_website" outputFiles
+      if null warnings
+        then putStrLn "Done!"
+        else exitFailure
