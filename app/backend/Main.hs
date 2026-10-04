@@ -11,6 +11,14 @@ module Main where
 
 import Control.Lens (Lens', (%~))
 import Data.Generic.HKD
+import Prelude hiding (Set)
+
+--------
+
+data Logger error warning a
+  = Failed error
+  | Success [warning] a
+  deriving (Show)
 
 --------
 
@@ -54,13 +62,17 @@ isNone :: Set a -> Bool
 isNone None = True
 isNone _ = False
 
+isMany :: Set a -> Bool
+isMany (Many _) = True
+isMany _ = False
+
 --------
 
 type Partial a = HKD a Set
 
 type Update a = Partial a -> Partial a
 
-type Builder a = Update a -> Either String a
+type Builder a = Update a -> Logger String String a
 
 type LabelExtractor a = (forall b. Set b -> Bool) -> Partial a -> [String]
 
@@ -70,7 +82,10 @@ builder labels updates =
       initial = mempty @(Partial a)
       values = updates initial
       missing = labels isNone values
-   in maybeToRight ("Missing fields " <> intercalate ", " missing) (valueOf $ construct values)
+      repeated = labels isMany values
+   in case valueOf (construct values) of
+      Just result -> Success (map ("Field set more than once: " <>) repeated) result
+      Nothing -> Failed ("Missing fields " <> intercalate ", " missing)
 
 set :: (Applicative f, Semigroup (f a)) => Lens' (HKD structure f) (f a) -> a -> HKD structure f -> HKD structure f
 set lens value u = u & lens %~ (<> pure value)
@@ -91,23 +106,30 @@ mkUser updates = builder labelsWhere (updates . defaults)
 defaults :: Update User
 defaults = set (field @"likesDogs") True
 
-user1 :: Either String User
+user1 :: Logger String String User
 user1 =
   mkUser $
     set (field @"name") "Lorem Ipsum"
       . set (field @"age") 42
       . set (field @"likesDogs") False
 
-user2 :: Either String User
+user2 :: Logger String String User
 user2 =
   mkUser $
     set (field @"name") "Lorem Ipsum"
       . set (field @"likesDogs") True
 
-user3 :: Either String User
+user3 :: Logger String String User
 user3 =
   mkUser $
     set (field @"name") "Lorem Ipsum"
+      . set (field @"age") 42
+
+user4 :: Logger String String User
+user4 =
+  mkUser $
+    set (field @"name") "Lorem Ipsum"
+      . set (field @"name") "Lorem Ipsum"
       . set (field @"age") 42
 
 main :: IO ()
@@ -115,3 +137,4 @@ main = do
   print user1
   print user2
   print user3
+  print user4

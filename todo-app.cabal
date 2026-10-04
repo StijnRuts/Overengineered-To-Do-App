@@ -39,6 +39,9 @@ executable backend
   import: defaults
   hs-source-dirs: app/backend
   main-is: Main.hs
+  build-depends:
+    higgledy,
+    lens
 
 executable website
   import: defaults
