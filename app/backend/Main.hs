@@ -9,29 +9,71 @@
 
 module Main where
 
-import Control.Lens (Lens', (.~))
+import Control.Lens (Lens', (%~))
 import Data.Generic.HKD
 
 --------
 
-type Partial a = HKD a Last
+data Set a
+  = None
+  | Once a
+  | Many a
+  deriving (Show)
+
+instance Functor Set where
+  fmap _ None = None
+  fmap f (Once value) = Once (f value)
+  fmap f (Many value) = Many (f value)
+
+instance Applicative Set where
+  pure = Once
+  None <*> _ = None
+  _ <*> None = None
+  Once f <*> Once value = Once (f value)
+  Once f <*> Many value = Many (f value)
+  Many f <*> Once value = Many (f value)
+  Many f <*> Many value = Many (f value)
+
+instance Semigroup (Set a) where
+  None <> value = value
+  value <> None = value
+  Once _ <> Once value = Many value
+  Once _ <> Many value = Many value
+  Many _ <> Once value = Many value
+  Many _ <> Many value = Many value
+
+instance Monoid (Set a) where
+  mempty = None
+
+valueOf :: Set a -> Maybe a
+valueOf None = Nothing
+valueOf (Once value) = Just value
+valueOf (Many value) = Just value
+
+isNone :: Set a -> Bool
+isNone None = True
+isNone _ = False
+
+--------
+
+type Partial a = HKD a Set
 
 type Update a = Partial a -> Partial a
 
 type Builder a = Update a -> Either String a
 
-type LabelExtractor a = (forall b. Last b -> Bool) -> Partial a -> [String]
+type LabelExtractor a = (forall b. Set b -> Bool) -> Partial a -> [String]
 
-builder :: forall a. (Monoid (Partial a), Construct Last a) => LabelExtractor a -> Builder a
+builder :: forall a. (Monoid (Partial a), Construct Set a) => LabelExtractor a -> Builder a
 builder labels updates =
   let initial :: Partial a
       initial = mempty @(Partial a)
       values = updates initial
-      missing = labels (isNothing . getLast) values
-   in maybeToRight ("Missing fields " <> intercalate ", " missing) (getLast $ construct values)
+      missing = labels isNone values
+   in maybeToRight ("Missing fields " <> intercalate ", " missing) (valueOf $ construct values)
 
-set :: (Applicative f) => Lens' (HKD structure f) (f a) -> a -> HKD structure f -> HKD structure f
-set lens value u = u & lens .~ pure value
+set :: (Applicative f, Semigroup (f a)) => Lens' (HKD structure f) (f a) -> a -> HKD structure f -> HKD structure f
+set lens value u = u & lens %~ (<> pure value)
 
 --------
 
